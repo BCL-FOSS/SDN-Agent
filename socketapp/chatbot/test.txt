@@ -1,0 +1,101 @@
+from quart import Quart, render_template, websocket
+from langgraph.graph import StateGraph, START, END
+from langchain_openai import ChatOpenAI
+from typing import Annotated
+from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
+import asyncio
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+
+app = Quart(__name__)
+llm = ChatOpenAI(model="gpt-3.5-turbo")
+
+def chatbot(state: State):
+    return {"messages": [llm.invoke(state["messages"])]}
+
+graph_builder = StateGraph(State)
+graph_builder.add_node("chatbot", chatbot)
+graph_builder.add_edge(START, "chatbot")
+graph_builder.add_edge("chatbot", END)
+graph = graph_builder.compile()
+
+@app.route('/')
+async def index():
+    return await render_template('index.html')
+
+@app.websocket('/chat')
+async def chat():
+    while True:
+        user_input = await websocket.receive()
+        async for event in graph.astream({"messages": [{"role": "user", "content": user_input}]}):
+            for value in event.values():
+                response = value["messages"][-1].content
+                await websocket.send(response)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
+
+# Jinja Template: templates/index.html
+# ------------------------------------
+# <!DOCTYPE html>
+# <html lang="en">
+# <head>
+#     <meta charset="UTF-8">
+#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#     <title>Chatbot</title>
+#     <script>
+#         let ws = new WebSocket("ws://" + window.location.host + "/chat");
+#         function sendMessage() {
+#             let input = document.getElementById("userInput");
+#             ws.send(input.value);
+#             let chatBox = document.getElementById("chat");
+#             chatBox.innerHTML += "<p><strong>You:</strong> " + input.value + "</p>";
+#             input.value = "";
+#         }
+#         ws.onmessage = function(event) {
+#             let chatBox = document.getElementById("chat");
+#             chatBox.innerHTML += "<p><strong>Bot:</strong> " + event.data + "</p>";
+#         };
+#     </script>
+# </head>
+# <body>
+#     <h1>Chatbot</h1>
+#     <div id="chat"></div>
+#     <input type="text" id="userInput" placeholder="Type a message...">
+#     <button onclick="sendMessage()">Send</button>
+# </body>
+# </html>
+
+# Dockerfile
+# ------------------------------------
+# FROM python:3.9
+# WORKDIR /app
+# COPY requirements.txt requirements.txt
+# RUN pip install -r requirements.txt
+# COPY . .
+# CMD ["python", "app.py"]
+
+# docker-compose.yml
+# ------------------------------------
+# version: '3.8'
+# services:
+#   app:
+#     build: .
+#     ports:
+#       - "5000:5000"
+#     depends_on:
+#       - caddy
+#   caddy:
+#     image: caddy:latest
+#     ports:
+#       - "80:80"
+#     volumes:
+#       - ./Caddyfile:/etc/caddy/Caddyfile
+
+# Caddyfile
+# ------------------------------------
+# :80 {
+#     reverse_proxy app:5000
+# }

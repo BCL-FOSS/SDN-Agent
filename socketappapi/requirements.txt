@@ -1,0 +1,10 @@
+quart
+redis
+asyncio
+uvicorn
+nest_asyncio
+aiohttp
+quart-rate-limiter
+setuptools
+passlib
+bcrypt
