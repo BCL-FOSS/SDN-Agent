@@ -28,6 +28,25 @@ services:
       - REDIS_ADMIN_DB=${REDIS_ADMIN_DB}
       - REDIS_ADMIN_PORT=${REDIS_ADMIN_DB_PORT}
 
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - socketapp
+      - socketappapi
+
 volumes:
   app_agentik_data:
+    external: true
+  caddy_data:
+    external: true
+  caddy_config:
     external: true

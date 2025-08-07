@@ -1,0 +1,17 @@
+# Caddyfile
+
+sdnagent.baughcl.com {
+	@websockets {
+		header Connection *Upgrade*
+		header Upgrade    websocket
+	}
+
+	handle /chat* {
+		reverse_proxy @websockets socketapp:4000
+	}
+
+}
+
+
+
+

@@ -50,4 +50,5 @@ Thumbs.db
 
 socketapp/Pipfile
 socketapp/test.py
+socketappapi/Pipfile
 
