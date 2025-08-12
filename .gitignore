@@ -51,4 +51,8 @@ Thumbs.db
 socketapp/Pipfile
 socketapp/test.py
 socketappapi/Pipfile
+mcp-client/utils/otp_gen.html
+mcp-client/utils/otp_vld.html
+mcp-client/utils/test.py
+material-kit-master/
 

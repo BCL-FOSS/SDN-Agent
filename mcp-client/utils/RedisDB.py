@@ -32,6 +32,7 @@ class RedisDB:
 
     async def upload_db_data(self, id = '', data = {}):
         try: 
+
             str_hashmap = {str(k): str(v) for k, v in data.items()}
             result = await self.redis_conn.hset(id, mapping=str_hashmap)
 
@@ -39,6 +40,7 @@ class RedisDB:
                 return result 
             else:
                 return None
+            
         except Exception as e:
             return {"DB Upload Error":str(e)}
         finally:
@@ -88,5 +90,6 @@ class RedisDB:
             return json.dumps({"error": str(e)})
         finally:
             await self.redis_conn.close()
+
         
 

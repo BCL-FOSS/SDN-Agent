@@ -1,6 +1,6 @@
 # Caddyfile
 
-sdnagent.baughcl.com {
+sdnagent.baughcl.tech {
 	@websockets {
 		header Connection *Upgrade*
 		header Upgrade    websocket
@@ -11,6 +11,8 @@ sdnagent.baughcl.com {
 	}
 
 }
+
+
 
 
 

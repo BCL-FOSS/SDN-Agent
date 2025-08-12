@@ -16,18 +16,6 @@ services:
     volumes:
       - app_agentik_data:/usr/src/app
 
-  socket_app_api:
-    restart: always
-    build:
-      context: .
-      dockerfile: socketappapi/Dockerfile
-    container_name: socketappapi
-    environment:
-      - REDIS_CLIENT_AUTH_DB=${REDIS_CLIENT_AUTH_DB}
-      - REDIS_CLIENT_AUTH_PORT=${REDIS_CLIENT_AUTH_DB_PORT}
-      - REDIS_ADMIN_DB=${REDIS_ADMIN_DB}
-      - REDIS_ADMIN_PORT=${REDIS_ADMIN_DB_PORT}
-
   caddy:
     image: caddy:latest
     container_name: caddy
@@ -41,7 +29,6 @@ services:
       - caddy_config:/config
     depends_on:
       - socketapp
-      - socketappapi
 
 volumes:
   app_agentik_data:
