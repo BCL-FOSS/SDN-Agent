@@ -16,10 +16,7 @@ quart-wtforms[email]
 setuptools
 passlib
 bcrypt
-ansible
-ansible-runner
 quart-rate-limiter
-iperf3
 tzlocal
 pyjwt
-pysnmp
+openai
