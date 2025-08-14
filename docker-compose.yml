@@ -5,38 +5,49 @@ services:
       context: .
       dockerfile: socketapp/Dockerfile
     container_name: socketapp
-    environment:
-      - REDIS_CLIENT_AUTH_DB=${REDIS_CLIENT_AUTH_DB}
-      - REDIS_CLIENT_AUTH_PORT=${REDIS_CLIENT_AUTH_DB_PORT}
-      - REDIS_ADMIN_DB=${REDIS_ADMIN_DB}
-      - REDIS_ADMIN_PORT=${REDIS_ADMIN_DB_PORT}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - API_NAME=${API_NAME}
-      - API_PORT=${API_PORT}
     volumes:
-      - app_agentik_data:/usr/src/app
-      - app_data:/home/quart/instance/apps
+      - socket_data:/home/quart/instance/apps
+    env_file:
+      - .env
 
+  agent_app:
+    restart: always
+    build:
+      context: .
+      dockerfile: agentapp/Dockerfile
+    container_name: agentapp
+    volumes:
+      - agent_data:/home/quart/instance/apps
+    env_file:
+      - .env
+      
   rate_limit_redis:
     image: redis:latest
-    container_name: ${REDIS_RATE_LIMIT_DB}
-    command: ["redis-server", "--port", "4379", "--appendonly", "yes"]
+    container_name: ${RATE_LIMIT_DB}
+    command: ["redis-server", "--port", "9379", "--appendonly", "yes"]
     volumes:
       - rate_limit_data:/data 
 
   client_auth_redis:
     image: redis:latest
-    container_name: ${REDIS_CLIENT_AUTH_DB}
-    command: ["redis-server", "--port", "6369", "--appendonly", "yes"]
+    container_name: ${CLIENT_AUTH_DB}
+    command: ["redis-server", "--port", "7369", "--appendonly", "yes"]
     volumes:
       - client_auth_data:/data 
 
   client_sess_redis:
     image: redis:latest
-    container_name: ${REDIS_CLIENT_SESS_DB}
-    command: ["redis-server", "--port", "9369", "--appendonly", "yes"]
+    container_name: ${CLIENT_SESS_DB}
+    command: ["redis-server", "--port", "8369", "--appendonly", "yes"]
     volumes:
       - client_sess_data:/data
+
+  agent_msgs_redis:
+    image: redis:latest
+    container_name: ${AGENT_MSGS_DB}
+    command: ["redis-server", "--port", "6369", "--appendonly", "yes"]
+    volumes:
+      - agent_msg_data:/data
 
   caddy:
     image: caddy:latest
@@ -50,10 +61,20 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - socketapp
+      - agentapp
 
 volumes:
-  app_agentik_data:
+  socket_data:
+    external: true
+  agent_data:
+    external: true
+  agent_msg_data:
+    external: true
+  client_sess_data:
+    external: true
+  client_auth_data:
+    external: true
+  rate_limit_data:
     external: true
   caddy_data:
     external: true

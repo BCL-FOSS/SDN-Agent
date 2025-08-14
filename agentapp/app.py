@@ -175,6 +175,7 @@ async def register():
                 "usr_jwt_secret": secrets.token_urlsafe(500),
                 "usr_rand": secrets.token_urlsafe(500),
                 "last_seen_id": None,
+                "mcp_urls": []
             }
 
             logger.info(f"User ID: {user_obj['id']}")
@@ -193,6 +194,7 @@ async def register():
                            "cmp_jwt_secret": secrets.token_urlsafe(500),
                            "cmp_rand": secrets.token_urlsafe(500),
                            "sites": {"default": {}}
+                           
                            }
 
                 logger.info(f"Company ID: {cmp_obj['id']}")

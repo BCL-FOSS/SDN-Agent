@@ -19,11 +19,19 @@ import json
 from typing import Callable
 from utils.WSRateLimiter import WSRateLimiter
 from openai import OpenAI
+import redis.asyncio as redis
 
-ws_rate_limiter = WSRateLimiter(redis_host=os.environ.get('REDIS_RATE_LIMIT_DB'), 
-                                redis_port=os.environ.get('REDIS_RATE_LIMIT_PORT'))
+ws_rate_limiter = WSRateLimiter(redis_host=os.environ.get('RATE_LIMIT_DB'), 
+                                redis_port=os.environ.get('RATE_LIMIT_PORT'))
 
-mcp_url = 'https://mcp.baughcl.tech/mcp'
+pubsub_redis=redis.from_url( 
+                f"redis://{os.environ.get('AGENT_MSGS_DB')}:{os.environ.get('AGENT_MSGS_DB_PORT')}", 
+                encoding="utf-8", decode_responses=True)
+if pubsub_redis is None:
+        logger.info(f'Redis connection to {os.environ.get('AGENT_MSGS_DB')} failed')
+else:
+        logger.info(f'Redis connection to {os.environ.get('AGENT_MSGS_DB')} succeeded.')
+        pub_sub=pubsub_redis.pubsub()
 
 client = OpenAI()
 
@@ -31,38 +39,85 @@ broker = Broker()
 
 async def _receive() -> None:
     while True:
-        message = await websocket.receive()
-        if isinstance(message, dict) and message.items():
-            action=message.get('act')
+        message = await websocket.receive_json()
+        parsed_message=json.loads(message)
+        action=parsed_message['act']
+        logger.debug(action)
 
-            match action:
-                case 'llm':
-                    resp = client.responses.create(
+        match action:
+            case 'llm':
+                resp = client.responses.create(
                         model="gpt-4.1",
                         tools=[
                             {
                                 "type": "mcp",
                                 "server_label": "dice_server",
-                                "server_url": f"{url}/mcp/",
+                                "server_url": f"{parsed_message['url']}/mcp/",
                                 "require_approval": "never",
                             },
                         ],
-                        input="Roll a few dice!",
+                        input=f"{parsed_message['msg']}",
                     )
 
-                    print(resp.output_text)
-                    await broker.publish(message=message)
-                case 'mcp_cnfg':
-                    mcp_url=message.get('mcp_url')
+                logger.debug(resp.output_text)
+                msg_data = {
+                        "from": "agent",
+                        "msg": resp.output_text
+                    }
+                
+                # Update chat stream with agent response in chat redis
+                key=f'chat:{parsed_message['url']}:{parsed_message['eml']}'
+                stream=f'stream:{key}'
+                await pubsub_redis.lpush(key, json.dumps(msg_data))
+                await pubsub_redis.publish(f"{stream}", json.dumps(msg_data))
 
-        
+                # Trigger frontend chat stream update
+                ws_json= {"act":"rsp","url":{parsed_message['url']},"eml":{parsed_message['eml']}}
+                await websocket.send(json.dumps(ws_json))
+
+            case 'rsp':
+                key=f'chat:{parsed_message['url']}:{parsed_message['eml']}'
+                chat_stream=f'stream:{key}'
+
+                # Sends all new user and agent repsonses to frontend via websocket
+                await pub_sub.subscribe(chat_stream)
+                new_message=await pub_sub.get_message(ignore_subscribe_messages=True, timeout=1.0)
+                if new_message:
+                    await broker.publish(message=new_message)
+
+@app.route("/messages", methods=["POST"])
+async def get_messages():
+    """ Retrieve the chat history for selected user and connected AI agent """
+    data = await request.get_json()
+ 
+    key=f'chat:{data['url']}:{data['eml']}'
+    messages = await pubsub_redis.lrange(key, 0, -1)
+    messages = [json.loads(m) for m in reversed(messages)]  # oldest first
+    return jsonify(messages)
+
+@app.route("/send_message", methods=["POST"])
+async def send_message():
+    """Add new user messages to chat stream in redis and trigger agent response via websocket"""
+    data = await request.get_json()
+    msg_data = {
+        "from": data["from"],
+        "msg": data["msg"]
+    }
+ 
+    key=f'chat:{data['url']}:{data['eml']}'
+    stream=f'stream:{key}'
+    await pubsub_redis.lpush(key, json.dumps(msg_data))
+    await pubsub_redis.publish(f"{stream}", json.dumps(msg_data))
+
+    ws_json= {"act":"llm","url":{data['url']},"eml":{data['eml']}, "msg": data['msg']}
+    await websocket.send(json.dumps(ws_json))
+    return jsonify({"status": "ok"})
+    
 @app.websocket("/ws")
 @rate_exempt
 async def ws():
     try:
-      
         logger.info(websocket.args)
-
         if websocket.args is not None:
 
             for key, value in websocket.args.items():
@@ -84,8 +139,8 @@ async def ws():
             if await ws_rate_limiter.check_rate_limit(client_id=client_connection) is True:
 
                 if id is not None or "":
-                    cl_sess_db = RedisDB(hostname=os.environ.get('REDIS_CLIENT_SESS_DB'), 
-                                                    port=os.environ.get('REDIS_CLIENT_SESS_PORT'))
+                    cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
+                                                    port=os.environ.get('CLIENT_SESS_PORT'))
                     await cl_sess_db.connect_db()
                     cl_sess_data = await cl_sess_db.get_obj_data(key=id)
 
@@ -111,8 +166,8 @@ async def ws():
                             await websocket.close(1000)
 
                 if email is not None or "":
-                    cl_auth_db = RedisDB(hostname=os.environ.get('REDIS_CLIENT_AUTH_DB'), 
-                                                    port=os.environ.get('REDIS_CLIENT_AUTH_PORT'))
+                    cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
+                                                    port=os.environ.get('CLIENT_AUTH_PORT'))
                     await cl_auth_db.connect_db()
 
                     if await cl_auth_db.get_all_data(match=f'usr:{email}*', cnfrm=True) is True:

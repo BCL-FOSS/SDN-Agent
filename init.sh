@@ -78,7 +78,12 @@ dockersetup() {
 
   sudo docker-compose build --no-cache 
 
-  sudo docker volume create --name=app_agentik_data
+  sudo docker volume create --name=socket_data
+  sudo docker volume create --name=agent_data
+  sudo docker volume create --name=agent_msg_data
+  sudo docker volume create --name=client_sess_data
+  sudo docker volume create --name=client_auth_data
+  sudo docker volume create --name=rate_limit_data
   sudo docker volume create --name=caddy_data
   sudo docker volume create --name=caddy_config
   sudo docker-compose up

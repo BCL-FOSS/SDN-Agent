@@ -8,11 +8,11 @@ RUN apt-get upgrade -y
 
 WORKDIR /home/quart
 
-COPY ubntmcp/requirements.txt ./
+COPY agentapp/requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ubntmcp/ /home/quart/
+COPY agentapp/ /home/quart/
 
 RUN chmod +x boot.sh
 

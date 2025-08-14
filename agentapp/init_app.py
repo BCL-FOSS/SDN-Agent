@@ -26,7 +26,6 @@ app.config["PREFERRED_URL_SCHEME"] = "https"
 app.config["SERVER_NAME"] = os.environ.get('SERVER_NAME')
 app.config["WTF_CSRF_HEADERS"] = ["X-Forwarded-For", "X-Forwarded-Proto"]
 
-# umjiniti data folder names
 folder_name = 'appdata'
 
 # data folder directories
