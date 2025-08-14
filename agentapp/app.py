@@ -293,6 +293,48 @@ async def agent(cmp_id, obsc):
 
     return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id)
 
+@app.route('/settings', defaults={'cmp_id': 'bcl','obsc': url_key}, methods=['GET', 'POST'])
+@app.route("/settings/<string:cmp_id>/<string:obsc>", methods=['GET', 'POST'])
+@user_login_required
+async def settings(cmp_id, obsc):
+    cur_usr_id = current_client.auth_id
+
+    await cl_auth_db.connect_db()
+    await cl_sess_db.connect_db()
+
+    mcp_form = await MCPConfigForm.create_form()
+
+    # Retrieve user session data
+    cl_sess_data = await cl_sess_db.get_all_data(match=f"{cur_usr_id}")
+    cl_sess_data_dict = next(iter(cl_sess_data.values()))
+    logger.info(cl_sess_data_dict)
+
+    # Probe installer instructions for user
+    output = """
+        AI is the future
+        IT is Dead
+        
+        $ cd 
+        $ sudo chmod +x run.sh
+        $ echo "Usage: ./run.sh [--enroll | --unenroll | --start | --stop]"
+        """
+
+    data = {'fnm': cl_sess_data_dict.get('fnm'),
+            'lnm': cl_sess_data_dict.get('lnm')}
+    
+    if await mcp_form.validate_on_submit():
+        new_server=mcp_form.server.data
+
+        if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('eml')}*', cnfrm=True) is True:
+            new_urls=cl_sess_data_dict.get('mcp_urls')
+            logger.info(new_urls)
+            user_obj=new_urls.append(new_server)
+
+            if await cl_auth_db.upload_db_data(id=f"{cl_sess_data_dict.get('db_id')}", data=user_obj) > 0:
+                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('eml')}!', category='success')
+
+    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, code_output=output, mcp_form=mcp_form)
+
 @app.errorhandler(Unauthorized)
 async def redirect_to_login(*_):
     return redirect(url_for("login"))

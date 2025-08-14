@@ -1,5 +1,5 @@
 from init_app import (app, agent_executor, llm_config)
-from quart import (websocket)
+from quart import (websocket, render_template_string, render_template)
 import asyncio
 from utils.broker import Broker
 from quart import request, jsonify, request
@@ -21,9 +21,17 @@ from utils.WSRateLimiter import WSRateLimiter
 from openai import OpenAI
 import redis.asyncio as redis
 
+# Session and Auth Redis DB init
+cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
+                                                    port=os.environ.get('CLIENT_SESS_PORT'))
+cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
+                                                    port=os.environ.get('CLIENT_AUTH_PORT'))
+
+# Websocket rate limit init
 ws_rate_limiter = WSRateLimiter(redis_host=os.environ.get('RATE_LIMIT_DB'), 
                                 redis_port=os.environ.get('RATE_LIMIT_PORT'))
 
+# Chat stream pubsub init
 pubsub_redis=redis.from_url( 
                 f"redis://{os.environ.get('AGENT_MSGS_DB')}:{os.environ.get('AGENT_MSGS_DB_PORT')}", 
                 encoding="utf-8", decode_responses=True)
@@ -34,7 +42,6 @@ else:
         pub_sub=pubsub_redis.pubsub()
 
 client = OpenAI()
-
 broker = Broker()
 
 async def _receive() -> None:
@@ -84,13 +91,28 @@ async def _receive() -> None:
                 new_message=await pub_sub.get_message(ignore_subscribe_messages=True, timeout=1.0)
                 if new_message:
                     await broker.publish(message=new_message)
+            case 'urls':
+                if await cl_auth_db.get_all_data(match=f'usr:{parsed_message['eml']}*', cnfrm=True) is True:
+                    account_data = await cl_auth_db.get_all_data(match=f'usr:{parsed_message['eml']}*')
+                    logger.info(account_data)
+                    sub_dict = next(iter(account_data.values()))
+                    logger.info(sub_dict)
+
+                    urls = sub_dict.get('mcp_urls')
+                    logger.debug(urls)
+                    if urls != []:
+                        data = {'options': urls}
+                        await broker.publish(message=data)
+                    else:
+                        data = {'options': ''}
+                        await broker.publish(message=data)
 
 @app.route("/messages", methods=["POST"])
-async def get_messages():
+async def messages():
     """ Retrieve the chat history for selected user and connected AI agent """
     data = await request.get_json()
  
-    key=f'chat:{data['url']}:{data['eml']}'
+    key=f'chat:{data['mcpurl']}:{data['eml']}'
     messages = await pubsub_redis.lrange(key, 0, -1)
     messages = [json.loads(m) for m in reversed(messages)]  # oldest first
     return jsonify(messages)
@@ -139,8 +161,7 @@ async def ws():
             if await ws_rate_limiter.check_rate_limit(client_id=client_connection) is True:
 
                 if id is not None or "":
-                    cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
-                                                    port=os.environ.get('CLIENT_SESS_PORT'))
+                    
                     await cl_sess_db.connect_db()
                     cl_sess_data = await cl_sess_db.get_obj_data(key=id)
 
@@ -166,8 +187,7 @@ async def ws():
                             await websocket.close(1000)
 
                 if email is not None or "":
-                    cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
-                                                    port=os.environ.get('CLIENT_AUTH_PORT'))
+                    
                     await cl_auth_db.connect_db()
 
                     if await cl_auth_db.get_all_data(match=f'usr:{email}*', cnfrm=True) is True:
@@ -222,3 +242,15 @@ async def ws():
         await task
         await websocket.accept()
         await websocket.close(1000)
+
+@app.errorhandler(401)
+async def need_to_login():
+    return await render_template_string(json.dumps({"error": "Authentication error"})), 401
+    
+@app.errorhandler(404)
+async def page_not_found():
+    return await render_template_string(json.dumps({"error": "Resource not found"})), 404
+
+@app.errorhandler(500)
+async def handle_internal_error(e):
+    return await render_template_string(json.dumps({"error": "Internal server error"})), 500
