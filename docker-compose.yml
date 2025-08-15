@@ -61,7 +61,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - agentapp
+      - agent_app
 
 volumes:
   socket_data:
