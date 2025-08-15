@@ -1,5 +1,5 @@
-from init_app import (app, admin_auth, client_auth, current_admin, current_client, logger,
-                      Client, Admin
+from init_app import (app, client_auth, current_admin, current_client, logger,
+                      Client
                       )
 from forms.LoginForm import LoginForm
 from forms.RegisterForm import RegisterForm
@@ -18,23 +18,15 @@ import json
 import os
 from passlib.hash import bcrypt
 import secrets
-import shutil
 import os
-import uuid
-from quart import Response
-from aiofiles import open as aio_open
-import aiofiles.os
-import asyncio
-from quart_rate_limiter import rate_exempt
-import jwt
 
 util_obj = Util()
 url_key = util_obj.key_gen(size=100)
 
-cl_auth_db = RedisDB(hostname=os.environ.get('REDIS_CLIENT_AUTH_DB'), 
-                                 port=os.environ.get('REDIS_CLIENT_AUTH_PORT'))
-cl_sess_db = RedisDB(hostname=os.environ.get('REDIS_CLIENT_SESS_DB'), 
-                                 port=os.environ.get('REDIS_CLIENT_SESS_PORT'))
+cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
+                                 port=os.environ.get('CLIENT_AUTH_PORT'))
+cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
+                                 port=os.environ.get('CLIENT_SESS_PORT'))
 
 def admin_login_required(func):
     @wraps(func)
@@ -235,7 +227,7 @@ async def agent(cmp_id, obsc):
     usr_jwt_token = util_obj.generate_ephemeral_token(user_id=cur_usr_id, secret_key=usr_jwt_key, user_rand=user_rand)
 
     # URL for agent websocket connection initialization
-    ws_url = f"ws://socketapp:4000/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
+    ws_url = f"ws://socketapp:5000/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
 
     return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id)
 

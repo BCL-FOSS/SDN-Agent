@@ -1,13 +1,29 @@
 # Caddyfile
 
 sdnagent.baughcl.tech {
-	@websockets {
-		header Connection *Upgrade*
-		header Upgrade    websocket
+
+    handle /* {
+		reverse_proxy agentapp:4000
 	}
 
-	handle /chat* {
-		reverse_proxy @websockets socketapp:4000
+	handle /login* {
+		reverse_proxy agentapp:4000
+	}
+
+	handle /register* {
+		reverse_proxy agentapp:4000
+	}
+
+	handle /agent* {
+		reverse_proxy agentapp:4000
+	}
+
+	handle /settings* {
+		reverse_proxy agentapp:4000
+	}
+
+	handle /logout* {
+		reverse_proxy agentapp:4000
 	}
 
 }
