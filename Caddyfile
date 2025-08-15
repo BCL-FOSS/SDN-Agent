@@ -1,6 +1,6 @@
 # Caddyfile
 
-sdnagent.baughcl.tech {
+agent.baughcl.tech {
 
     handle /* {
 		reverse_proxy agentapp:4000
