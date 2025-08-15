@@ -4,6 +4,7 @@ from init_app import (app, admin_auth, client_auth, current_admin, current_clien
 from forms.LoginForm import LoginForm
 from forms.RegisterForm import RegisterForm
 from forms.MCPConfigForm import MCPConfigForm
+from forms.SDNCredForm import SDNCredForm
 from quart import (render_template_string, render_template, flash, redirect, url_for, session)
 from quart_wtf.csrf import CSRFError
 from quart_auth import (
@@ -93,23 +94,23 @@ async def login():
         form = await LoginForm.create_form()
 
         if await form.validate_on_submit():
-            email = form.email.data
+            username = form.username.data
             password = form.password.data
 
-            email = email.replace(" ", "").lower()
+            username = username.replace(" ", "").lower()
             
             await cl_auth_db.connect_db()
 
-            if await cl_auth_db.get_all_data(match=f'*{email}*', cnfrm=True) is True:
+            if await cl_auth_db.get_all_data(match=f'*{username}*', cnfrm=True) is True:
               
-                account_data = await cl_auth_db.get_all_data(match=f'*{email}*')
+                account_data = await cl_auth_db.get_all_data(match=f'*{username}*')
                 logger.info(account_data)
                 sub_dict = next(iter(account_data.values()))
                 logger.info(sub_dict)
                 password_hash = sub_dict.get('pwd')
                 
                 if account_data and bcrypt.verify(password, password_hash):
-                    logger.info(f'Account credentials verified for {email}')
+                    logger.info(f'Account credentials verified for {username}')
                     # Assign session ID for authenticated account
                     session_id = util_obj.gen_id()
 
@@ -124,15 +125,15 @@ async def login():
                     logger.info(sub_dict)
                         
                     if await cl_sess_db.upload_db_data(id=session_id, data=sub_dict) > 0:
-                        company_id = sub_dict.get('cmp_id')
+                        db_id = sub_dict.get('db_id')
                         session['url_key'] = util_obj.key_gen(size=100)
                                 
-                        await flash(message=f'Account creation successful for {sub_dict.get('eml')}!', category='success')
-                        return redirect(url_for('agent', cmp_id=company_id, obsc=session.get('url_key')))
+                        await flash(message=f'Account creation successful for {sub_dict.get('unm')}!', category='success')
+                        return redirect(url_for('agent', cmp_id=db_id, obsc=session.get('url_key')))
 
                 else:
-                    logger.error(f'Authentication for {email} failed. Invalid password.')
-                    await flash(message=f'Login failed for {email}. Invalid password.', category='danger')
+                    logger.error(f'Authentication for {username} failed. Invalid password.')
+                    await flash(message=f'Login failed for {username}. Invalid password.', category='danger')
                     return redirect(url_for('login'))
             else:
                 await flash(message='Account does not exist.', category='danger')
@@ -155,106 +156,51 @@ async def register():
         if await form.validate_on_submit():
 
             fname, lname = form.fname.data.replace(" ", "").lower(), form.lname.data.replace(" ", "").lower()
-            email, company = form.email.data.replace(" ", "").lower(), form.company.data.replace(" ", "").lower()
             username, password = form.uname.data.replace(" ", "").lower(), form.password.data
 
             password_hash = bcrypt.hash(password)
 
-            logger.info("Registering user: %s", email)
+            username = username.replace(" ", "").lower()
 
-            user_nmp, user_id = util_obj.gen_user(email=email, username=username)
+            logger.info("Registering user: %s", username)
+
+            user_nmp, user_id = util_obj.gen_user(username=username)
 
             user_obj = {
                 "id": user_id,
                 "fnm": fname,
                 "lnm": lname,
-                "eml": email,
-                "cmp": company,
                 "unm": username,
                 "pwd": password_hash,
                 "usr_jwt_secret": secrets.token_urlsafe(500),
                 "usr_rand": secrets.token_urlsafe(500),
                 "last_seen_id": None,
-                "mcp_urls": []
+                "mcp_urls": [],
+                "sdn_users": []
             }
 
             logger.info(f"User ID: {user_obj['id']}")
 
             await cl_auth_db.connect_db()
 
-            company_exist = await cl_auth_db.get_all_data(match=f'cmp:{company}*', cnfrm=True)
+            user_exist = await cl_auth_db.get_all_data(match=f'*{username}*', cnfrm=True)
 
-            if company_exist is False:
-                company_id, company_nmp, company_data_id, company_tenant_id = util_obj.gen_company(company=company)
-                cmp_obj = {"id": company_id, 
-                           "tenant_id": company_tenant_id,
-                           "name": company, 
-                           "nmspce": company_nmp, 
-                           "dt_id": company_data_id,
-                           "cmp_jwt_secret": secrets.token_urlsafe(500),
-                           "cmp_rand": secrets.token_urlsafe(500),
-                           "sites": {"default": {}}
-                           
-                           }
-
-                logger.info(f"Company ID: {cmp_obj['id']}")
-
-                # key for new users
-                user_key = f"{company_nmp}:{user_nmp}:{user_id}"
-
-                # Upload company data
-                if await cl_auth_db.upload_db_data(id=company_data_id, data=cmp_obj) > 0:
-                    # Add company ID & name & tenant ID to user object
-                    user_obj['cmp_id'] = company_nmp
-                    user_obj['cmp'] = company_id
-                    user_obj['cmp_jwt_secret'] = cmp_obj.get('cmp_jwt_secret')
-                    user_obj['cmp_rand'] = cmp_obj.get('cmp_rand')
-                    user_obj['cmp_dt_id'] = cmp_obj.get('dt_id')
-                    user_obj['tnt_id'] = cmp_obj.get('tenant_id')
-                    user_obj['db_id'] = user_key
-
-                    logger.info(user_obj)
-
-                    if await cl_auth_db.upload_db_data(id=f"{user_key}", data=user_obj) > 0:
-                        await flash(message=f'Registration successful for {email}!', category='success')
-                        return redirect(url_for('login'))
-                else:
-                    await flash(message=f'Registration falied for {email}. Try again.', category='danger')
-                    return redirect(url_for('register'))
-                
-            if await cl_auth_db.get_all_data(match=f'*{email}*', cnfrm=True) is True:
-                await flash(message=f'Account for {email} already exist!', category='danger')
-                return redirect(url_for('login'))
-            else:
-                company_data = await cl_auth_db.get_all_data(match=f'cmp:{company}*')
-
-                sub_dict = next(iter(company_data.values()))
-                #logger.info(sub_dict.get('id'))
-                company_id = sub_dict.get('id')
-                company_tnt_id = sub_dict.get('tenant_id')
-                company_namespace = sub_dict.get('nmpspce')
-
-                #admin_exist = await cl_auth_db.get_all_data(match=f"adm-{company_namespace}*", cnfrm=True)
-
-                # user key for current existing company
-                user_key = f"{company_namespace}:{user_nmp}:{user_id}"
-
-                logger.info(company_data)
-
-                # Add company ID & name & tenant ID to user object
-                user_obj['cmp_id'] = company_namespace
-                user_obj['cmp'] = company_id
-                user_obj['cmp_jwt_secret'] = sub_dict.get('cmp_jwt_secret')
-                user_obj['cmp_rand'] = sub_dict.get('cmp_rand')
-                user_obj['cmp_dt_id'] = sub_dict.get('dt_id')
-                user_obj['tnt_id'] = company_tnt_id
+            if user_exist is False:
+                # redis db key for new users
+                user_key = f"{user_nmp}:{user_id}"
                 user_obj['db_id'] = user_key
-
                 logger.info(user_obj)
 
+                # Upload user data
                 if await cl_auth_db.upload_db_data(id=f"{user_key}", data=user_obj) > 0:
-                    await flash(message=f'Registration successful for {email}!', category='success')
+                    await flash(message=f'Registration successful for {username}!', category='success')
                     return redirect(url_for('login'))
+                else:
+                    await flash(message=f'Registration falied for {username}. Try again.', category='danger')
+                    return redirect(url_for('register'))
+            else:
+                await flash(message=f'Account for {username} already exist!', category='danger')
+                return redirect(url_for('login'))
 
         return await render_template('index/register.html', form=form)
 
@@ -289,7 +235,7 @@ async def agent(cmp_id, obsc):
     usr_jwt_token = util_obj.generate_ephemeral_token(user_id=cur_usr_id, secret_key=usr_jwt_key, user_rand=user_rand)
 
     # URL for agent websocket connection initialization
-    ws_url = f"ws://socketapp:4000/ws?token={usr_jwt_token}&id={cur_usr_id}&eml={cl_sess_data_dict.get('eml')}"
+    ws_url = f"ws://socketapp:4000/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
 
     return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id)
 
@@ -303,14 +249,23 @@ async def settings(cmp_id, obsc):
     await cl_sess_db.connect_db()
 
     mcp_form = await MCPConfigForm.create_form()
+    sdn_form = await SDNCredForm.create_form()
 
     # Retrieve user session data
     cl_sess_data = await cl_sess_db.get_all_data(match=f"{cur_usr_id}")
     cl_sess_data_dict = next(iter(cl_sess_data.values()))
     logger.info(cl_sess_data_dict)
 
-    # Probe installer instructions for user
-    output = """
+    mcp_server_instr = """
+        AI is the future
+        IT is Dead
+        
+        $ cd 
+        $ sudo chmod +x run.sh
+        $ echo "Usage: ./run.sh [--enroll | --unenroll | --start | --stop]"
+        """
+    
+    sdn_user_instr = """
         AI is the future
         IT is Dead
         
@@ -325,13 +280,26 @@ async def settings(cmp_id, obsc):
     if await mcp_form.validate_on_submit():
         new_server=mcp_form.server.data
 
-        if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('eml')}*', cnfrm=True) is True:
+        if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('unm')}*', cnfrm=True) is True:
             new_urls=cl_sess_data_dict.get('mcp_urls')
             logger.info(new_urls)
             user_obj=new_urls.append(new_server)
 
             if await cl_auth_db.upload_db_data(id=f"{cl_sess_data_dict.get('db_id')}", data=user_obj) > 0:
-                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('eml')}!', category='success')
+                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
+
+    if await sdn_form.validate_on_submit():
+        if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('unm')}*', cnfrm=True) is True:
+
+            sdn_user=cl_sess_data_dict.get('sdn_users')
+            logger.info(sdn_user)
+
+            user_obj={'type': sdn_form.controller.data, 'user': sdn_form.uname.data, 'pwd': sdn_form.password.data }
+            obj=sdn_user.append(user_obj)
+
+            if await cl_auth_db.upload_db_data(id=f"{cl_sess_data_dict.get('db_id')}", data=obj) > 0:
+                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
+
 
     return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, code_output=output, mcp_form=mcp_form)
 

@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentOptions = [];
   let selectedValue = null;
-  let currentEmail = "{{ user_email }}"; // replace with real Jinja var
+  let currentUser = "{{ user }}"; // replace with real Jinja var
 
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
   const wsURLMon = "{{ ws_mon_url }}"
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       ws.onopen = function () {
         console.log("Connected to WebSocket");
-        ws.send(JSON.stringify({ act: "urls", "eml": `${currentEmail}`}));
+        ws.send(JSON.stringify({ act: "urls", "usr": `${currentUser}`}));
       };
 
       ws.addEventListener('message', function (event) {
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!selectedValue || !currentOptions.includes(selectedValue)) {
       selectedValue = currentOptions[0] || null;
       if (selectedValue) {
-        loadChat(selectedValue, currentEmail);
+        loadChat(selectedValue, currentUser);
       }
     }
 
@@ -159,17 +159,17 @@ document.addEventListener("DOMContentLoaded", () => {
       li.addEventListener("click", () => {
         selectedValue = option;
         mcpDropdown.value = option;
-        loadChat(option, currentEmail);
+        loadChat(option, currentUser);
       });
       mcpList.appendChild(li);
     });
   }
 
-  async function loadChat(url, email) {
+  async function loadChat(url, user) {
     const res = await fetch("/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mcpurl: url, eml: email })
+      body: JSON.stringify({ mcpurl: url, usr: user })
     });
     const messages = await res.json();
     chatWindow.innerHTML = "";
@@ -194,13 +194,13 @@ document.addEventListener("DOMContentLoaded", () => {
     await fetch("/send_message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: selectedValue, eml: currentEmail, from: "user", msg: msg })
+      body: JSON.stringify({ url: selectedValue, usr: currentUser, from: "user", msg: msg })
     });
   });
 
   mcpDropdown.addEventListener("change", () => {
     selectedValue = mcpDropdown.value;
-    loadChat(selectedValue, currentEmail);
+    loadChat(selectedValue, currentUser);
   });
 });
 </script>
