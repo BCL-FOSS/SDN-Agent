@@ -257,21 +257,13 @@ async def settings(cmp_id, obsc):
     logger.info(cl_sess_data_dict)
 
     mcp_server_instr = """
-        AI is the future
-        IT is Dead
-        
-        $ cd 
-        $ sudo chmod +x run.sh
-        $ echo "Usage: ./run.sh [--enroll | --unenroll | --start | --stop]"
+        $ echo "Add your MCP Server URLs here"
+
         """
     
     sdn_user_instr = """
-        AI is the future
-        IT is Dead
+        $ echo "Add your SDN controller user credentials here"
         
-        $ cd 
-        $ sudo chmod +x run.sh
-        $ echo "Usage: ./run.sh [--enroll | --unenroll | --start | --stop]"
         """
 
     data = {'fnm': cl_sess_data_dict.get('fnm'),
@@ -301,7 +293,7 @@ async def settings(cmp_id, obsc):
                     await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
 
 
-    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, code_output=output, mcp_form=mcp_form)
+    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, sdn_instr=sdn_user_instr, mcp_instr=mcp_server_instr, mcp_form=mcp_form)
 
 @app.errorhandler(Unauthorized)
 async def redirect_to_login(*_):
