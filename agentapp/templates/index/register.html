@@ -27,7 +27,8 @@
             </div>
             <div class="card-body">
                 <form method="POST">
-                    {{ form.csrf_token }}
+                    {{ form.hidden_tag() }}
+                    <!--{{ form.csrf_token }}-->
                     <div class="form-floating mb-3">
                         <label>Username</label>
                         {{ form.uname(class="form-control") }}    

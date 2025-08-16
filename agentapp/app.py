@@ -83,6 +83,7 @@ async def index():
 @app.route('/login', methods=['GET', 'POST'])
 async def login():
     try:
+        session["csrf_ready"] = True
         form = await LoginForm.create_form()
 
         if await form.validate_on_submit():
@@ -143,6 +144,7 @@ async def login():
 @app.route('/register', methods=['GET', 'POST'])
 async def register():
     try:
+        session["csrf_ready"] = True
         form = await RegisterForm.create_form()
 
         if await form.validate_on_submit():
