@@ -6,7 +6,6 @@ import nest_asyncio
 import logging
 from quart_rate_limiter import (RateLimiter, RateLimit, timedelta)
 import logging
-from quart_wtf.csrf import CSRFProtect
 import os
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,9 +18,7 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe()
 app.config['SECURITY_PASSWORD_SALT'] = str(secrets.SystemRandom().getrandbits(128))
 
 # Trust Proxy Headers (IMPORTANT for reverse proxy)
-# app.config["PREFERRED_URL_SCHEME"] = "https"
-# app.config["SERVER_NAME"] = os.environ.get('SERVER_NAME')
-# app.config["WTF_CSRF_HEADERS"] = ["X-Forwarded-For", "X-Forwarded-Proto"]
+app.config["SERVER_NAME"] = os.environ.get('SOCKET_SERVER_NAME')
 
 folder_name = 'appdata'
 
@@ -44,6 +41,3 @@ RateLimiter(
         RateLimit(20, timedelta(minutes=1)),
     ],
 )
-
-csrf = CSRFProtect()
-csrf.init_app(app=app)
