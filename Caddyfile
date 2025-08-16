@@ -39,11 +39,11 @@ socket.baughcl.tech {
 	}
 
 	handle /messages* {
-		reverse_proxy mntrapp:5000
+		reverse_proxy socketapp:5000
 	}
 
 	handle /send_message* {
-		reverse_proxy mntrapp:5000
+		reverse_proxy socketapp:5000
 	}
 
 }
