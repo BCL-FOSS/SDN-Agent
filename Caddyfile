@@ -26,6 +26,10 @@ agent.baughcl.tech {
 		reverse_proxy agentapp:4000
 	}
 
+	handle /ws* {
+		reverse_proxy socketapp:5000
+	}
+
 }
 
 

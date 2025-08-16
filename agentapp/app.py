@@ -27,7 +27,7 @@ cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'),
                                  port=os.environ.get('CLIENT_AUTH_DB_PORT'))
 cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
                                  port=os.environ.get('CLIENT_SESS_DB_PORT'))
-mntr_url='socket.baughcl.tech'
+mntr_url='agent.baughcl.tech'
 
 def admin_login_required(func):
     @wraps(func)
@@ -226,7 +226,7 @@ async def agent(cmp_id, obsc):
     usr_jwt_token = util_obj.generate_ephemeral_token(user_id=cur_usr_id, secret_key=usr_jwt_key, user_rand=user_rand)
 
     # URL for agent websocket connection initialization
-    ws_url = f"ws://socket_app:5000/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
+    ws_url = f"wss://{mntr_url}/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
 
     return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id)
 
