@@ -10,7 +10,7 @@ RUN apt-get upgrade -y
 
 COPY socketapp/requirements.txt ./
 
-RUN pip install --no-cache-dir -r requirements.txt --upgrade 
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY socketapp/ /home/quart/
 

@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = "{{ user }}"; // replace with real Jinja var
 
   const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-  const wsURLMon = "{{ ws_mon_url }}"
+  const wsURLMon = "{{ ws_url }}"
   const wsMon = new WebSocket(`${wsURLMon}`);
 
   const error_display = document.getElementById("error_display");
