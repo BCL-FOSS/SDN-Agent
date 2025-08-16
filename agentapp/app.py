@@ -238,6 +238,7 @@ async def settings(cmp_id, obsc):
     await cl_auth_db.connect_db()
     await cl_sess_db.connect_db()
 
+    session["csrf_ready"] = True
     mcp_form = await MCPConfigForm.create_form()
     sdn_form = await SDNCredForm.create_form()
 
@@ -283,7 +284,7 @@ async def settings(cmp_id, obsc):
                     await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
 
 
-    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, sdn_instr=sdn_user_instr, mcp_instr=mcp_server_instr, mcp_form=mcp_form)
+    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, sdn_instr=sdn_user_instr, mcp_instr=mcp_server_instr, mcp_form=mcp_form, sdn_form=sdn_form)
 
 @app.errorhandler(Unauthorized)
 async def redirect_to_login(*_):
