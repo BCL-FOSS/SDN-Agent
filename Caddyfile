@@ -1,6 +1,10 @@
 # Caddyfile
 
 agent.baughcl.tech {
+	@websockets {
+		header Connection *Upgrade*
+		header Upgrade    websocket
+	}
 
     handle /* {
 		reverse_proxy agentapp:4000
@@ -27,7 +31,7 @@ agent.baughcl.tech {
 	}
 
 	handle /ws* {
-		reverse_proxy socketapp:5000
+		reverse_proxy @websockets socketapp:5000
 	}
 
 }
