@@ -14,6 +14,7 @@ services:
       - CLIENT_SESS_DB_PORT=${CLIENT_SESS_DB_PORT}
       - RATE_LIMIT_DB=${RATE_LIMIT_DB}
       - RATE_LIMIT_DB_PORT=${RATE_LIMIT_DB_PORT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - socket_data:/home/quart/instance/apps
     

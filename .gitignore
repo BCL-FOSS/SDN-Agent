@@ -55,8 +55,11 @@ agentapp/utils/otp_gen.html
 agentapp/utils/otp_vld.html
 agentapp/utils/test.py
 material-kit-master/
+*.env
 
 
 
 
 
+.env
+.env
