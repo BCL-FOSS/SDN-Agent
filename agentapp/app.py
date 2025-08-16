@@ -121,7 +121,7 @@ async def login():
                         session['url_key'] = util_obj.key_gen(size=100)
                                 
                         await flash(message=f'Account creation successful for {sub_dict.get('unm')}!', category='success')
-                        return redirect(url_for('agent', cmp_id=db_id, obsc=session.get('url_key')))
+                        return redirect(url_for('settings', cmp_id=db_id, obsc=session.get('url_key')))
 
                 else:
                     logger.error(f'Authentication for {username} failed. Invalid password.')
