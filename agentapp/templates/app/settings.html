@@ -54,7 +54,7 @@
             </div>
           </div>
           <form method="POST">
-            {{ form.hidden_tag() }}
+            {{ mcp_form.hidden_tag() }}
             <!--{{ mcp_form.csrf_token }}-->
             <div class="form-floating mb-3">
               <label for="installer">{{ mcp_form.server.label }}</label>
@@ -92,11 +92,11 @@
             </div>
           </div>
           <form method="POST">
-            {{ form.hidden_tag() }}
+            {{ sdn_form.hidden_tag() }}
             <!--{{ sdn_form.csrf_token }}-->
             <div class="form-floating mb-3">
               <label for="controller">{{ sdn_form.controller.label }}</label>
-              {{ mcp_form.controller(class="form-control") }}
+              {{ sdn_form.controller(class="form-control") }}
             </div>
             <div class="form-floating mb-3">
               <label>{{ sdn_form.uname.label }}</label>
