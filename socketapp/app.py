@@ -19,15 +19,15 @@ import redis.asyncio as redis
 
 # Session and Auth Redis DB init
 cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
-                                                    port=os.environ.get('CLIENT_SESS_PORT'))
+                                                    port=os.environ.get('CLIENT_SESS_DB_PORT'))
 cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
-                                                    port=os.environ.get('CLIENT_AUTH_PORT'))
+                                                    port=os.environ.get('CLIENT_AUTH_DB_PORT'))
 
 # Websocket rate limit init
 ws_rate_limiter = WSRateLimiter(redis_host=os.environ.get('RATE_LIMIT_DB'), 
-                                redis_port=os.environ.get('RATE_LIMIT_PORT'))
+                                redis_port=os.environ.get('RATE_LIMIT_DB_PORT'))
 
-# Chat stream pubsub init
+# Chat stream pubsub redis init
 pubsub_redis=redis.from_url( 
                 f"redis://{os.environ.get('AGENT_MSGS_DB')}:{os.environ.get('AGENT_MSGS_DB_PORT')}", 
                 encoding="utf-8", decode_responses=True)

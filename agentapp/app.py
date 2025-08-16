@@ -24,9 +24,9 @@ util_obj = Util()
 url_key = util_obj.key_gen(size=100)
 
 cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'), 
-                                 port=os.environ.get('CLIENT_AUTH_PORT'))
+                                 port=os.environ.get('CLIENT_AUTH_DB_PORT'))
 cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
-                                 port=os.environ.get('CLIENT_SESS_PORT'))
+                                 port=os.environ.get('CLIENT_SESS_DB_PORT'))
 
 def admin_login_required(func):
     @wraps(func)

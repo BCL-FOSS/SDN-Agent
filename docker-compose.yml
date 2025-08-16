@@ -5,22 +5,32 @@ services:
       context: .
       dockerfile: socketapp/Dockerfile
     container_name: socketapp
+    environment:
+      - CLIENT_AUTH_DB=${CLIENT_AUTH_DB}
+      - CLIENT_AUTH_DB_PORT=${CLIENT_AUTH_DB_PORT}
+      - CLIENT_SESS_DB=${CLIENT_SESS_DB}
+      - CLIENT_SESS_DB_PORT=${CLIENT_SESS_DB_PORT}
     volumes:
       - socket_data:/home/quart/instance/apps
-    env_file:
-      - .env
-
+    
   agent_app:
     restart: always
     build:
       context: .
       dockerfile: agentapp/Dockerfile
     container_name: agentapp
+    environment:
+      - AGENT_MSGS_DB=${AGENT_MSGS_DB}
+      - AGENT_MSGS_DB_PORT=${AGENT_MSGS_DB_PORT}
+      - CLIENT_AUTH_DB=${CLIENT_AUTH_DB}
+      - CLIENT_AUTH_DB_PORT=${CLIENT_AUTH_DB_PORT}
+      - CLIENT_SESS_DB=${CLIENT_SESS_DB}
+      - CLIENT_SESS_DB_PORT=${CLIENT_SESS_DB_PORT}
+      - RATE_LIMIT_DB=${RATE_LIMIT_DB}
+      - RATE_LIMIT_DB_PORT=${RATE_LIMIT_DB_PORT}
     volumes:
       - agent_data:/home/quart/instance/apps
-    env_file:
-      - .env
-      
+    
   rate_limit_redis:
     image: redis:latest
     container_name: ${RATE_LIMIT_DB}
