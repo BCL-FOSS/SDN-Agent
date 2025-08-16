@@ -146,8 +146,6 @@ async def register():
         form = await RegisterForm.create_form()
 
         if await form.validate_on_submit():
-
-            fname, lname = form.fname.data.replace(" ", "").lower(), form.lname.data.replace(" ", "").lower()
             username, password = form.uname.data.replace(" ", "").lower(), form.password.data
 
             password_hash = bcrypt.hash(password)
@@ -160,8 +158,6 @@ async def register():
 
             user_obj = {
                 "id": user_id,
-                "fnm": fname,
-                "lnm": lname,
                 "unm": username,
                 "pwd": password_hash,
                 "usr_jwt_secret": secrets.token_urlsafe(500),
@@ -258,8 +254,8 @@ async def settings(cmp_id, obsc):
         
         """
 
-    data = {'fnm': cl_sess_data_dict.get('fnm'),
-            'lnm': cl_sess_data_dict.get('lnm')}
+    data = {'unm': cl_sess_data_dict.get('unm'),
+            'id': cl_sess_data_dict.get('db_id')}
     
     if await mcp_form.validate_on_submit():
         new_server=mcp_form.server.data
