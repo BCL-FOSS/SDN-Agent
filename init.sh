@@ -86,6 +86,8 @@ dockersetup() {
   sudo docker volume create --name=rate_limit_data
   sudo docker volume create --name=caddy_data
   sudo docker volume create --name=caddy_config
+  sudo docker volume create --name=ubnt_mcp_data
+  sudo docker volume create --name=omada_mcp_data
   sudo docker-compose up
 }
 

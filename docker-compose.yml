@@ -31,6 +31,24 @@ services:
       - CLIENT_SESS_DB_PORT=${CLIENT_SESS_DB_PORT}
     volumes:
       - agent_data:/home/quart/instance/apps
+
+  omadamcp:
+    restart: always
+    build:
+      context: .
+      dockerfile: omadamcp/Dockerfile
+    container_name: omadamcp
+    volumes:
+      - omada_mcp_data:/home/quart/instance/apps
+
+  ubntmcp:
+    restart: always
+    build:
+      context: .
+      dockerfile: ubntmcp/Dockerfile
+    container_name: ubntmcp
+    volumes:
+      - ubnt_mcp_data:/home/quart/instance/apps
     
   rate_limit_redis:
     image: redis:latest
@@ -78,6 +96,10 @@ volumes:
   socket_data:
     external: true
   agent_data:
+    external: true
+  ubnt_mcp_data:
+    external: true
+  omada_mcp_data:
     external: true
   agent_msg_data:
     external: true

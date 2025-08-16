@@ -1,140 +1,517 @@
-<!doctype html>
-<html lang="en">
+{% extends 'index/base.html' %}
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="apple-touch-icon" sizes="76x76" href="{{ url_for('static', filename='img/bcl/favicon-192.png') }}">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/bcl/favicon-192.png') }}">
-  <title>
-    SD Network Automation Framework with AI - Baugh Consulting & Lab L.L.C.
-  </title>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <!--     Fonts and icons     -->
-  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-  <!-- Material Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-  <link href="{{ url_for('static', filename='css/nucleo-icons.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/nucleo-svg.css') }}" rel="stylesheet" />
-  <!-- Material Kit CSS -->
-   <link id="pagestyle" href="{{ url_for('static', filename='css/material-kit.min.css') }}" rel="stylesheet" />
-</head>
+{% block content %}
 
-<body>
-  <!-- Navbar Transparent -->
-  <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent">
-    <div class="container">
-      <a class="navbar-brand  text-white " href="{{ url_for('index') }}" rel="tooltip" title="Software Defined Network MCP Server" data-placement="bottom">
-        <img src="{{ url_for('static', filename='img/bcl/Logo-Animated.svg') }}"  height="80" width="100" alt="Consulting services logo"/>
-
-      </a>
-      <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon mt-2">
-          <span class="navbar-toggler-bar bar1"></span>
-          <span class="navbar-toggler-bar bar2"></span>
-          <span class="navbar-toggler-bar bar3"></span>
-        </span>
-      </button>
-      <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0 ms-lg-12 ps-lg-5" id="navigation">
-        <ul class="navbar-nav navbar-nav-hover ms-auto">
-          <li class="nav-item ms-lg-auto">
-            <a class="nav-link nav-link-icon me-2" href="{{ url_for('index') }}">
-              <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About SDN AI for Software Defined Network Autmation from Baugh Consulting and Lab L.L.C.">About SDN AI</p>
-            </a>
-          </li>
-          
-          <li class="nav-item ms-lg-auto">
-            <a class="nav-link nav-link-icon me-2" href="https://github.com/BCL-FOSS/SDN-Agent" target="_blank">
-              <i class="fa fa-github me-1"></i>
-              <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Star on Github">SDN AI Github</p>
-            </a>
-          </li>
-          <li class="nav-item ms-lg-auto">
-            <a class="nav-link nav-link-icon me-2" href="https://baughcl.tech/" target="_blank">
-              <p class="d-inline text-sm z-index-1 font-weight-bold" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About Baugh Consulting and Lab L.L.C.">About the Developer</p>
-            </a>
-          </li>
-          <li class="nav-item my-auto ms-3 ms-lg-0">
-            <a href="{{ url_for('register') }}" class="btn btn-sm  bg-gradient-dark  mb-0 me-1 mt-2 mt-md-0">Demo Sign Up</a>
-          </li>
-          <li class="nav-item my-auto ms-3 ms-lg-0">
-            <a href="{{ url_for('login') }}" class="btn  btn-sm bg-gradient-info  mb-0 me-1 mt-2 mt-md-0">Demo Sign In</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <!-- End Navbar -->
-
-
-  <div class="page-header min-vh-80" style="background-image: url('https://images.unsplash.com/photo-1630752708689-02c8636b9141?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2490&q=80')">
-    <span class="mask bg-gradient-dark opacity-6"></span>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-8 mx-auto">
-          <div class="text-center">
-            <h1 class="text-white">umjiniti AI: </h1>
-            <h3 class="text-white">The Future of Network Management</h3>
+<section class="min-vh-100 mb-8">
+    <div class="page-header min-vh-50 pt-5 pb-11 m-3 border-radius-lg" style="background-image: url('/static/img/curved-images/curved14.jpg');">
+      <span class="mask bg-gradient-dark opacity-6"></span>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-12 text-center mx-auto">
+            <h1 class="text-white mb-2 mt-5"> umjiniti AI</h1>
+            <h3 class="text-lead text-white">The Future of Network Engineering</h3>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="card card-body shadow-xl mx-3 mx-md-4 mt-n6">
     <div class="container">
-      <div class="section text-center">
-        <p>
-          Automate Ubiquiti UniFi and TP-Link Omada networks with open source MCP server from Baugh Consulting & Lab L.L.C. and your favorite OpenAI model
-        </p>
-      </div>
-    </div>
-  </div>
-  <footer class="footer pt-5 mt-5">
-    <div class="container">
-      <div class=" row">
-        <div class="col-md-3 mb-4 ms-auto">
-            <div class="copyright text-center text-sm text-lg-start">
-              © <script>
-                document.write(new Date().getFullYear())
-              </script>,
-              made with <i class="fa fa-heart" aria-hidden="true"></i> by
-              <a href="https://baughcl.tech/" class="font-weight-bold" target="_blank">Baugh Consulting & Lab L.L.C.</a>.
+
+        <div class="row text-center page-section mb-4 p-4" id="services" style="background: linear-gradient(to right, #eab5ac, #8b7da8); border-radius: 10px;">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">Services</h2>
+                <p class="section-subheading ">
+                    Automate Ubiquiti UniFi and TP-Link Omada networks with the open source AI automation framework from Baugh Consulting & Lab L.L.C.
+                </p>
             </div>
-          <div>
-            
-          </div>
+            <div class="col-md-4">
+                <span class="fa-stack fa-4x">
+                    <!--<i class="fas fa-circle fa-stack-2x" style="color: #8b7da8 "></i>-->
+                    <i class="fas fa-server fa-stack-1x fa-inverse"></i>
+                </span>
+                <h4 class="my-3">NMSaaS</h4>
+                <p class="">
+                    Networking monitoring, automation & WiFi survey SaaS for Service Providers and Network Professionals.
+                </p>
+            </div>
+            <div class="col-md-4">
+                <span class="fa-stack fa-4x">
+                    <!--<i class="fas fa-circle fa-stack-2x" style="color: #8b7da8 "></i>-->
+                    <i class="fas fa-users-gear fa-stack-1x fa-inverse"></i>
+                </span>
+                <h4 class="my-3">IT Consulting</h4>
+                <p class="">
+                    Project management & support services for software-defined networking, linux/unix, open source and fullstack development. 
+                </p>
+            </div>
+            <div class="col-md-4">
+                <span class="fa-stack fa-4x">
+                    <!--<i class="fas fa-circle fa-stack-2x" style="color: #8b7da8 "></i>-->
+                    <i class="fas fa-headset fa-stack-1x fa-inverse"></i>
+                </span>
+                <h4 class="my-3">Co-Managed IT</h4>
+                <p class="">
+                    Helping remote companies with lean IT teams increase resiliency, adaptability, scalability & productivity with reliable managed services.
+                </p>
+            </div>
         </div>
-        <div class="col-12 col-md-6">
-            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-              <li class="nav-item">
-                <a href="https://baughcl.tech/" class="nav-link" target="_blank">Baugh Consulting & Lab L.L.C.</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://baughcl.tech/services.html" class="nav-link" target="_blank">AI Automation & Network Engineering Services</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://baughcl.tech/contact.html" class="nav-link" target="_blank">Contact Me</a>
-              </li>
+
+        <div class="row page-section mb-4 p-4" id="expertise" style="background: linear-gradient(to right, #8b7da8, #eab5ac); border-radius: 10px;">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">Areas of Expertise</h2>
+                <p class="section-subheading ">
+                    10+ years of industry experience in the following areas: 
+                </p>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <!-- Portfolio item 1-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal1">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/neteng.jpg') }}" alt="Baugh Consulting  & Lab L.L.C. designs & installs network infrastructure for SMBs and Enterprise." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Network Engineering</div>
+                        <div class="portfolio-caption-subheading ">
+                            Building resilient, scalable & secure corporate networks with TP-Link Omada and Ubiquiti UniFi products
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <!-- Portfolio item 2-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal2">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/srvradm.jpg') }}" alt="Baugh Consulting  & Lab L.L.C. manages & automates datacenter, on-prem & cloud infrastructure for SMBs and Enterprise." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Network Automation</div>
+                        <div class="portfolio-caption-subheading ">
+                            Managing & automating datacenter, on-prem and cloud infrastructure
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <!-- Portfolio item 3-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal3">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/fullstack.jpg') }}" alt="Baugh Consulting  & Lab L.L.C. builds, deploys and maintains software for SMBs and Enteprise using the latest methodologies." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Fullstack Development</div>
+                        <div class="portfolio-caption-subheading ">
+                            Building, deploying & maintaining secure web and mobile applications
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
+                <!-- Portfolio item 4-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal4">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/foss.jpg') }}" alt="Baugh Consulting  & Lab L.L.C. leverages free & open source technology to deploy, upgrade & modernize SMB & Enterprise IT infrastructure." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Open Source for SMBs</div>
+                        <div class="portfolio-caption-subheading ">
+                            Deploying, upgrading & modernizing IT infrastructure with free & open source technology
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
+                <!-- Portfolio item 5-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal5">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/sdn.jpg') }}" alt="Baugh Consulting & Lab L.L.C. builds resilient, scalable & secure networks with Ubiquiti UniFi & TP-Link Omada products." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Ubiquiti UniFi & TP-Link Omada</div>
+                        <div class="portfolio-caption-subheading ">
+                            Providing Ubiquiti UniFi & TP-Link Omada consulting & support services
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6">
+                <!-- Portfolio item 6-->
+                <div class="portfolio-item">
+                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal6">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                        </div>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/bcl/expertise/surveillance.jpg') }}" alt="Baugh Consulting & Lab L.L.C. deploys surveillance and physical security systems with Ubiquiti UniFi products." />
+                    </a>
+                    <div class="portfolio-caption">
+                        <div class="portfolio-caption-heading">Surveillance & Security System Installation</div>
+                        <div class="portfolio-caption-subheading ">
+                            Deploying surveillance and physical security systems with Ubiquiti UniFi
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row page-section mb-4 p-4" id="about" style="background: linear-gradient(to right, #eab5ac, #8b7da8); border-radius: 10px;">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">About</h2>
+                <p class="section-subheading">
+                    A unconventional tech company comes with an unconventional backstory
+                </p>
+            </div>
+            <ul class="timeline">
+                <li>
+                    <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/1.jpg" alt="..." /></div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4>2013-2024</h4>
+                            <h4 class="subheading">Learning & Growing</h4>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="">
+                                An early start at a Queens, NY based Managed Services Provider laid the foundation for a career spent designing, deploying & managing IT infrastructure for various companies. The following roles were held at several entities within the Managed Services, Product Engineering, Federal Government and Higher Education industries: Datacenter Technician, Linux/Systems Administrator, Systems Engineer, Security Analyst, IT Specialist.
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-inverted">
+                    <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/2.jpg" alt="..." /></div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4>May 2024</h4>
+                            <h4 class="subheading">A New Hope</h4>
+                        </div>
+                        <div class="timeline-body">
+                            <p>
+                                After 10+ years delivering IT solutions, several areas were identified as hindrances to the actual experience of managing networks. In a word, it's painful. Tools for monitoring, automation and backups are either tedious to implement or have complicated pricing, preventing small IT teams from managing mid-sized to large networks with ease.
+                            </p>
+                            <p>
+                                Frustrated with the lack of innovation and clear focus on profit maximization by many service providers, <b>Baugh Consulting & Lab (B.C. & L) L.L.C. was formed to provide Monitoring, Automation & Business Continuity software that allows IT Professionals to manage networks of any size with ease</b>. Along with operations as a SaaS provider, B.C. & L also provides IT consulting and Co-Managed Services.
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/3.jpg" alt="..." /></div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4>May 2024 - April 2025</h4>
+                            <h4 class="subheading">Building the future of IT</h4>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="">
+                               Baugh Consulting & Lab launches its Network Monitoring, Automation & Business Continuity SaaS platform, <b>umjiniti</b>.
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="timeline-inverted">
+                    <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/about/4.jpg" alt="..." /></div>
+                    <div class="timeline-panel">
+                        <div class="timeline-heading">
+                            <h4>Present</h4>
+                            <h4 class="subheading">Going Global</h4>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="">
+                                Baugh Consulting & Lab L.L.C. continues to stay at the forefront of innovations within tech, provide top-notch services to clients, and looks to expand to emerging markets throughout the globe.
+                            </p>
+                        </div>
+                    </div>
+                </li>
             </ul>
         </div>
-        <div class="col-12">
-          <div class="text-center">
-           <div class="copyright text-center text-sm text-lg-start">
-              © <script>
-                document.write(new Date().getFullYear())
-              </script>,
-              made with <i class="fa fa-heart" aria-hidden="true"></i> by
-              <a href="https://baughcl.tech/" class="font-weight-bold" target="_blank">Baugh Consulting & Lab L.L.C.</a>.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-</body>
 
-</html>
+        <div class="row page-section mb-4 p-4" id="team" style="background: linear-gradient(to right, #8b7da8, #eab5ac); border-radius: 10px;">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">Meet the Founder</h2>
+                <p class="section-subheading "></p>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                </div>
+                <div class="col-lg-4">
+                    <div class="team-member">
+                        <img class="mx-auto rounded-circle" src="{{ url_for('static', filename='img/bcl/headshot_sketch.jpg') }}" height="80" width="80" alt="Derek Baugh, Owner/Founder Baugh Consulting & Lab L.L.C." />
+                        <h4>Derek Baugh</h4>
+                        <p class="">Owner & Founder</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://github.com/BCL-FOSS" aria-label="Derek Baugh GitHub"><i class="fab fa-github"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Baugh Consulting & Lab L.L.C. Youtube"><i class="fab fa-youtube"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/baughcl/" aria-label="Derek Baugh LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="row page-section mb-4 p-4" id="contact" style="background: linear-gradient(to right, #eab5ac, #8b7da8); border-radius: 10px;">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">Contact</h2>
+                <p class="section-subheading ">Interested in working with Baugh Consulting & Lab L.L.C.?</p>
+            </div>
+            
+            <form method="POST">
+                {{ form.csrf_token }}
+                <div class="row align-items-stretch mb-5">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <!-- Name input-->
+                            <label for="name">Name</label>
+                            {{ form.name(class="form-control") }}
+                        </div>
+                        <div class="form-group">
+                            <!-- Email address input-->
+                            <label for="email">Email</label>
+                            {{ form.email(class="form-control") }}
+                        </div>
+                        <div class="form-group mb-md-0">
+                            <!-- Phone number input-->
+                            <label for="phone">Phone</label>
+                            {{ form.phone(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group form-group-textarea mb-md-0">
+                            <!-- Message input-->
+                            <label for="message">Message</label>
+                            {{ form.message(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                {{ form.submit(class="btn btn-dark btn-round") }}
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<!-- Portfolio Modals-->
+<!-- Portfolio item 1 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/1.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Threads
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Illustration
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Portfolio item 2 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/2.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Explore
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Graphic Design
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Portfolio item 3 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal3" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/3.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Finish
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Identity
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Portfolio item 4 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/4.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Lines
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Branding
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Portfolio item 5 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal5" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/5.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Southwest
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Website Design
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Portfolio item 6 modal popup-->
+<div class="portfolio-modal modal fade" id="portfolioModal6" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="modal-body">
+                            <!-- Project details-->
+                            <h2 class="text-uppercase">Project Name</h2>
+                            <p class="item-intro ">Lorem ipsum dolor sit amet consectetur.</p>
+                            <img class="img-fluid d-block mx-auto" src="assets/img/portfolio/6.jpg" alt="..." />
+                            <p>Use this area to describe your project. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est blanditiis dolorem culpa incidunt minus dignissimos deserunt repellat aperiam quasi sunt officia expedita beatae cupiditate, maiores repudiandae, nostrum, reiciendis facere nemo!</p>
+                            <ul class="list-inline">
+                                <li>
+                                    <strong>Client:</strong>
+                                    Window
+                                </li>
+                                <li>
+                                    <strong>Category:</strong>
+                                    Photography
+                                </li>
+                            </ul>
+                            <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-xmark me-1"></i>
+                                Close Project
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

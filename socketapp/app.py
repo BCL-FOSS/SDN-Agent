@@ -37,6 +37,8 @@ else:
         logger.info(f'Redis connection to {os.environ.get('AGENT_MSGS_DB')} succeeded.')
         pub_sub=pubsub_redis.pubsub()
 
+mntr_url=os.environ.get('SERVER_NAME')
+
 client = OpenAI()
 broker = Broker()
 
@@ -55,7 +57,7 @@ async def _receive() -> None:
                             {
                                 "type": "mcp",
                                 "server_label": "dice_server",
-                                "server_url": f"{parsed_message['url']}/mcp/",
+                                "server_url": f"{parsed_message['url']}",
                                 "require_approval": "never",
                             },
                         ],
@@ -88,48 +90,104 @@ async def _receive() -> None:
                 if new_message:
                     await broker.publish(message=new_message)
             case 'urls':
-                if await cl_auth_db.get_all_data(match=f'*{parsed_message['usr']}*', cnfrm=True) is True:
-                    account_data = await cl_auth_db.get_all_data(match=f'*{parsed_message['usr']}*')
-                    logger.info(account_data)
-                    sub_dict = next(iter(account_data.values()))
-                    logger.info(sub_dict)
-
-                    urls = sub_dict.get('mcp_urls')
-                    logger.debug(urls)
-                    if urls != []:
-                        data = {'options': urls}
-                        await broker.publish(message=data)
-                    else:
-                        data = {'options': ''}
-                        await broker.publish(message=data)
+                data = {'options': [f"https://{mntr_url}/ubnt/mcp", f"https://{mntr_url}/omada/mcp"]}
+                await broker.publish(message=data)
 
 @app.route("/messages", methods=["POST"])
 async def messages():
     """ Retrieve the chat history for selected user and connected AI agent """
-    data = await request.get_json()
- 
-    key=f'chat:{data['mcpurl']}:{data['usr']}'
-    messages = await pubsub_redis.lrange(key, 0, -1)
-    messages = [json.loads(m) for m in reversed(messages)]  # oldest first
-    return jsonify(messages)
+    logger.info(request.args)
+    if request.args is not None:
+        for key, value in websocket.args.items():
+            match key:
+                case 'token':
+                    jwt_token = value
+                case 'amp;id':
+                    id = value
+                case 'amp;unm':
+                    user = value
+
+    if user and id is not None or "":
+                    
+        await cl_auth_db.connect_db()
+        await cl_sess_db.connect_db()
+
+        if await cl_auth_db.get_all_data(match=f'*{user}*', cnfrm=True) and await cl_sess_db.get_all_data(match=f'{id}', cnfrm=True) is True:
+                        
+            account_data = await cl_auth_db.get_all_data(match=f'*{user}*')
+            if account_data is None:
+                return jsonify({"error": "Authentication Error"})
+                            
+            logger.info(account_data)
+            sub_dict = next(iter(account_data.values()))
+            logger.info(sub_dict)
+
+            jwt_key = sub_dict.get('usr_jwt_secret')
+            logger.info(jwt_key)
+            decoded_token = jwt.decode(jwt=jwt_token, key=jwt_key , algorithms=["HS256"])
+            logger.info(decoded_token)
+
+            if decoded_token.get('rand') != sub_dict.get('usr_rand'):
+                return jsonify({"error": "Authentication Error"})
+            else:
+                data = await request.get_json()
+            
+                key=f'chat:{data['mcpurl']}:{data['usr']}'
+                messages = await pubsub_redis.lrange(key, 0, -1)
+                messages = [json.loads(m) for m in reversed(messages)]  # oldest first
+                return jsonify(messages)
 
 @app.route("/send_message", methods=["POST"])
 async def send_message():
     """Add new user messages to chat stream in redis and trigger agent response via websocket"""
-    data = await request.get_json()
-    msg_data = {
-        "from": data["from"],
-        "msg": data["msg"]
-    }
- 
-    key=f'chat:{data['url']}:{data['usr']}'
-    stream=f'stream:{key}'
-    await pubsub_redis.lpush(key, json.dumps(msg_data))
-    await pubsub_redis.publish(f"{stream}", json.dumps(msg_data))
+    logger.info(request.args)
+    if request.args is not None:
+        for key, value in websocket.args.items():
+            match key:
+                case 'token':
+                    jwt_token = value
+                case 'amp;id':
+                    id = value
+                case 'amp;unm':
+                    user = value
 
-    ws_json= {"act":"llm","url":{data['url']},"usr":{data['usr']}, "msg": data['msg']}
-    await websocket.send(json.dumps(ws_json))
-    return jsonify({"status": "ok"})
+    if user and id is not None or "":
+                    
+        await cl_auth_db.connect_db()
+        await cl_sess_db.connect_db()
+
+        if await cl_auth_db.get_all_data(match=f'*{user}*', cnfrm=True) and await cl_sess_db.get_all_data(match=f'{id}', cnfrm=True) is True:
+                        
+            account_data = await cl_auth_db.get_all_data(match=f'*{user}*')
+            if account_data is None:
+                return jsonify({"error": "Authentication Error"})
+                            
+            logger.info(account_data)
+            sub_dict = next(iter(account_data.values()))
+            logger.info(sub_dict)
+
+            jwt_key = sub_dict.get('usr_jwt_secret')
+            logger.info(jwt_key)
+            decoded_token = jwt.decode(jwt=jwt_token, key=jwt_key , algorithms=["HS256"])
+            logger.info(decoded_token)
+
+            if decoded_token.get('rand') != sub_dict.get('usr_rand'):
+                return jsonify({"error": "Authentication Error"})
+            else:
+                data = await request.get_json()
+                msg_data = {
+                    "from": data["from"],
+                    "msg": data["msg"]
+                }
+            
+                key=f'chat:{data['url']}:{data['usr']}'
+                stream=f'stream:{key}'
+                await pubsub_redis.lpush(key, json.dumps(msg_data))
+                await pubsub_redis.publish(f"{stream}", json.dumps(msg_data))
+
+                ws_json= {"act":"llm","url":{data['url']},"usr":{data['usr']}, "msg": data['msg']}
+                await websocket.send(json.dumps(ws_json))
+                return jsonify({"status": "ok"})
     
 @app.websocket("/ws")
 @rate_exempt

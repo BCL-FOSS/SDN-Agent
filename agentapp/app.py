@@ -27,7 +27,7 @@ cl_auth_db = RedisDB(hostname=os.environ.get('CLIENT_AUTH_DB'),
                                  port=os.environ.get('CLIENT_AUTH_DB_PORT'))
 cl_sess_db = RedisDB(hostname=os.environ.get('CLIENT_SESS_DB'), 
                                  port=os.environ.get('CLIENT_SESS_DB_PORT'))
-mntr_url='agent.baughcl.tech'
+mntr_url=os.environ.get('SERVER_NAME')
 
 def admin_login_required(func):
     @wraps(func)
@@ -39,27 +39,6 @@ def admin_login_required(func):
             admin_data = await cl_sess_db.get_all_data(match=f"{current_admin.auth_id}")
             admin_data_sub_dict = next(iter(admin_data.values()))
 
-            if admin_data_sub_dict.get('adm_key') is not None or "".strip():
-                if await cl_auth_db.get_all_data(match=f"{admin_data_sub_dict.get('db_id')}", cnfrm=True) is True:
-                    admin_auth_data = await cl_auth_db.get_all_data(match=f"{admin_data_sub_dict.get('db_id')}")
-                    admin_auth_data_sub_dict = next(iter(admin_auth_data.values()))
-
-                    if admin_data_sub_dict.get('adm_key') == admin_auth_data_sub_dict.get('adm_key'):
-                        return await app.ensure_async(func)(*args, **kwargs)
-                    else:
-                        return Unauthorized()
-                else:
-                    return Unauthorized()
-            else:
-                return Unauthorized()
-        elif current_client.auth_id is not None and await cl_sess_db.get_all_data(match=f"{current_client.auth_id}", cnfrm=True) is True:
-            user_data = await cl_sess_db.get_all_data(match=f"{current_client.auth_id}")
-            user_data_sub_dict = next(iter(user_data.values()))
-            if await cl_auth_db.get_all_data(match=f"{user_data_sub_dict.get('db_id')}", cnfrm=True) is True:
-                await flash(message='Not authorized to access that resource. Contact your umjiniti administrator for assistance.')
-                return redirect(url_for('hm', cmp_id=user_data_sub_dict.get('cmp_id'), obsc=session.get('url_key'), site=session.get('cur_site')))
-        else:
-            raise Unauthorized()
     return wrapper
 
 def user_login_required(func):
@@ -123,7 +102,7 @@ async def login():
                         session['url_key'] = util_obj.key_gen(size=100)
                                 
                         await flash(message=f'Authentication successful for {sub_dict.get('unm')}!', category='success')
-                        return redirect(url_for('settings', cmp_id=db_id, obsc=session.get('url_key')))
+                        return redirect(url_for('dashboard', cmp_id=db_id, obsc=session.get('url_key')))
 
                 else:
                     logger.error(f'Authentication for {username} failed. Invalid password.')
@@ -204,6 +183,22 @@ async def register():
 async def logout():
     logout_user()
 
+@app.route('/dashboard', defaults={'cmp_id': 'bcl','obsc': url_key}, methods=['GET', 'POST'])
+@app.route("/dashboard/<string:cmp_id>/<string:obsc>", methods=['GET', 'POST'])
+@user_login_required
+async def dashboard(cmp_id, obsc):
+    cur_usr_id = current_client.auth_id
+
+    await cl_auth_db.connect_db()
+    await cl_sess_db.connect_db()
+
+    # Retrieve user session data
+    cl_sess_data = await cl_sess_db.get_all_data(match=f"{cur_usr_id}")
+    cl_sess_data_dict = next(iter(cl_sess_data.values()))
+    logger.info(cl_sess_data_dict)
+
+    return await render_template("app/dashboard.html", obsc_key=session.get('url_key'), cmp_id=cmp_id)
+
 @app.route('/agent', defaults={'cmp_id': 'bcl','obsc': url_key}, methods=['GET', 'POST'])
 @app.route("/agent/<string:cmp_id>/<string:obsc>", methods=['GET', 'POST'])
 @user_login_required
@@ -228,7 +223,7 @@ async def agent(cmp_id, obsc):
     # URL for agent websocket connection initialization
     ws_url = f"wss://{mntr_url}/ws?token={usr_jwt_token}&id={cur_usr_id}&unm={cl_sess_data_dict.get('unm')}"
 
-    return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id)
+    return await render_template("app/agent.html", obsc_key=session.get('url_key'), ws_url=ws_url, cmp_id=cmp_id, user=cl_sess_data_dict.get('unm'))
 
 @app.route('/settings', defaults={'cmp_id': 'bcl','obsc': url_key}, methods=['GET', 'POST'])
 @app.route("/settings/<string:cmp_id>/<string:obsc>", methods=['GET', 'POST'])
@@ -240,7 +235,6 @@ async def settings(cmp_id, obsc):
     await cl_sess_db.connect_db()
 
     session["csrf_ready"] = True
-    mcp_form = await MCPConfigForm.create_form()
     sdn_form = await SDNCredForm.create_form()
 
     # Retrieve user session data
@@ -261,17 +255,6 @@ async def settings(cmp_id, obsc):
     data = {'unm': cl_sess_data_dict.get('unm'),
             'id': cl_sess_data_dict.get('db_id')}
     
-    if await mcp_form.validate_on_submit():
-        new_server=mcp_form.server.data
-
-        if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('unm')}*', cnfrm=True) is True:
-            new_urls=cl_sess_data_dict.get('mcp_urls')
-            logger.info(new_urls)
-            user_obj=new_urls.append(new_server)
-
-            if await cl_auth_db.upload_db_data(id=f"{cl_sess_data_dict.get('db_id')}", data=user_obj) > 0:
-                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
-
     if await sdn_form.validate_on_submit():
         if await cl_auth_db.get_all_data(match=f'*{cl_sess_data_dict.get('unm')}*', cnfrm=True) is True:
 
@@ -282,10 +265,9 @@ async def settings(cmp_id, obsc):
             obj=sdn_user.append(user_obj)
 
             if await cl_auth_db.upload_db_data(id=f"{cl_sess_data_dict.get('db_id')}", data=obj) > 0:
-                    await flash(message=f'Registration successful for {cl_sess_data_dict.get('unm')}!', category='success')
+                    await flash(message=f'Credentials saved to account: {cl_sess_data_dict.get('unm')}!', category='success')
 
-
-    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, sdn_instr=sdn_user_instr, mcp_instr=mcp_server_instr, mcp_form=mcp_form, sdn_form=sdn_form)
+    return await render_template("app/settings.html", obsc_key=session.get('url_key'), cmp_id=cmp_id, data=data, sdn_instr=sdn_user_instr, sdn_form=sdn_form)
 
 @app.errorhandler(Unauthorized)
 async def redirect_to_login(*_):

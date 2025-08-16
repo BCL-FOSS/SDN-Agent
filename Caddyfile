@@ -34,6 +34,14 @@ agent.baughcl.tech {
 		reverse_proxy @websockets socketapp:5000
 	}
 
+	handle /ubnt/mcp* {
+		reverse_proxy ubntmcp:6000
+	}
+
+	handle /omada/mcp* {
+		reverse_proxy omadamcp:7000
+	}
+
 }
 
 
