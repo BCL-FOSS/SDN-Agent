@@ -120,7 +120,7 @@ async def login():
                         db_id = sub_dict.get('db_id')
                         session['url_key'] = util_obj.key_gen(size=100)
                                 
-                        await flash(message=f'Account creation successful for {sub_dict.get('unm')}!', category='success')
+                        await flash(message=f'Authentication successful for {sub_dict.get('unm')}!', category='success')
                         return redirect(url_for('settings', cmp_id=db_id, obsc=session.get('url_key')))
 
                 else:
