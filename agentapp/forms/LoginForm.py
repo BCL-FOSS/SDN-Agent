@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length
 from wtforms.widgets import PasswordInput
 
 class LoginForm(QuartForm):
-    username = StringField("Username", validators=[DataRequired(), Length(min=8, max=30)])
+    username = StringField("Username", validators=[DataRequired(), Length(max=30)])
     password = PasswordField(
         'Password',
         widget=PasswordInput(),
