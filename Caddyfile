@@ -28,6 +28,27 @@ agent.baughcl.tech {
 
 }
 
+socket.baughcl.tech {
+	@websockets {
+		header Connection *Upgrade*
+		header Upgrade    websocket
+	}
+
+	handle /ws* {
+		reverse_proxy @websockets socketapp:5000
+	}
+
+	handle /messages* {
+		reverse_proxy mntrapp:5000
+	}
+
+	handle /send_message* {
+		reverse_proxy mntrapp:5000
+	}
+
+}
+
+
 
 
 
