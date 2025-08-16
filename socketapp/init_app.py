@@ -18,7 +18,7 @@ app.config['SECRET_KEY'] = secrets.token_urlsafe()
 app.config['SECURITY_PASSWORD_SALT'] = str(secrets.SystemRandom().getrandbits(128))
 
 # Trust Proxy Headers (IMPORTANT for reverse proxy)
-app.config["SERVER_NAME"] = os.environ.get('SOCKET_SERVER_NAME')
+# app.config["SERVER_NAME"] = os.environ.get('SOCKET_SERVER_NAME')
 
 folder_name = 'appdata'
 
